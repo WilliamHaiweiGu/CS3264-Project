@@ -1,0 +1,19 @@
+Sample cleaned tweet: rt  as a woman you shouldnt complain about cleaning up your house amp as a man you should always take the trash out
+Class distribution:
+ class
+1    19190
+2     4163
+0     1430
+Name: count, dtype: int64
+Best parameters: {'clf__alpha': 0.1, 'tfidf__use_idf': False, 'vect__ngram_range': (1, 2)}
+              precision    recall  f1-score   support
+
+           0       0.61      0.09      0.15       290
+           1       0.87      0.98      0.92      3832
+           2       0.89      0.62      0.73       835
+
+    accuracy                           0.87      4957
+   macro avg       0.79      0.56      0.60      4957
+weighted avg       0.86      0.87      0.85      4957
+
+Weighted F1 Score: 0.8454
