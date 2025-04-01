@@ -16,12 +16,12 @@ from transformers import XLNetForSequenceClassification, XLNetTokenizer
 print("Python", sys.version, "on", sys.platform)
 
 """Training parameters"""
-MEMORY_FACTOR: int = 2560  # Proportional to Device Memory usage. About 3 GB at 2048
-MAX_LEN: int = 32
+MEMORY_FACTOR: int = 61440  # Proportional to Device Memory usage. About 3 GB at 2048
+MAX_LEN: int = 512
 PREFER_GPU: bool = True
 DATA_PROPORTION: float = 1
-LEARN_RATE: float = 2e-5
-N_EPOCH: int = 10
+LEARN_RATE: float = 1.5e-6
+N_EPOCH: int = 100
 START_MODEL_FILE: str | None = None
 TEST_SIZE: float = 0.3
 """Constants"""

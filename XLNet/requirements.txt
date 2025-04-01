@@ -1,4 +1,5 @@
 # torch
+sentencepiece
 scikit-learn
 transformers
 tqdm
