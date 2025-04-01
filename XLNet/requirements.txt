@@ -1,4 +1,6 @@
 # torch
+numpy
+sentencepiece
 scikit-learn
 transformers
 tqdm
