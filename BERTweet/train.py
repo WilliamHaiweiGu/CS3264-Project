@@ -1,5 +1,4 @@
 import pandas as pd
-import torch
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
 from sklearn.metrics import f1_score, accuracy_score
