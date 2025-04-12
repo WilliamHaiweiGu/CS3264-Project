@@ -2,7 +2,7 @@ import gc
 import os
 import re
 import sys
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, List, Tuple, Optional
 
 import numpy as np
 import pandas as pd
@@ -20,14 +20,12 @@ print("Python", sys.version, "on", sys.platform)
 """Training parameters"""
 MEMORY_FACTOR: int = 61440  # Proportional to Device Memory usage. About 3 GB at 2048
 MAX_LEN: int = 512
-PREFER_GPU: bool = True
 DATA_PROPORTION: float = 1
-LEARN_RATE: float = 2e-5  # Increased learning rate
+LEARN_RATE: float = 2e-5
 N_EPOCH: int = 100
-START_MODEL_FILE: str | None = None
+START_MODEL_FILE: Optional[str] = None
 TEST_SIZE: float = 0.3
-DROPOUT_RATE: float = 0.1
-SUMMARY_LAST_DROPOUT_RATE: float = 0.15
+SUMMARY_LAST_DROPOUT_RATE: float = 0.2
 """Constants"""
 BATCH_SIZE: int = MEMORY_FACTOR // MAX_LEN
 RAND_STATE: int = 69
@@ -70,7 +68,7 @@ def del_if_exists(file_path: str):
 tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
 torch.serialization.add_safe_globals([TensorDataset])
 torch.manual_seed(RAND_STATE)
-can_cuda: bool = PREFER_GPU and torch.cuda.is_available()
+can_cuda: bool = torch.cuda.is_available()
 device = torch.device("cuda" if can_cuda else "cpu")
 print("PyTorch will use GPU:", can_cuda)
 
@@ -143,7 +141,7 @@ if __name__ == "__main__":
     del test_dataset
     # Load model
     # https://huggingface.co/transformers/v2.11.0/model_doc/xlnet.html
-    config = XLNetConfig.from_pretrained("xlnet-base-cased", num_labels=n_class, dropout=DROPOUT_RATE,
+    config = XLNetConfig.from_pretrained("xlnet-base-cased", num_labels=n_class,
                                          summary_last_dropout=SUMMARY_LAST_DROPOUT_RATE)
     model = XLNetForSequenceClassification.from_pretrained("xlnet-base-cased", config=config)
     if START_MODEL_FILE is not None and os.path.isfile(START_MODEL_FILE):
@@ -178,13 +176,7 @@ if __name__ == "__main__":
     best_f1: float = 0
 
 
-    def eval_f1(dataloader: DataLoader, y_true: List[int], desc: str = "") -> float:
-        y_pred: List[int] = []
-        with torch.no_grad():
-            for input_ids, attention_mask, _ in tqdm(dataloader, desc=desc):
-                outputs = model(input_ids=input_ids.to(device), attention_mask=attention_mask.to(device))
-                y_pred.extend(tensor_to_list(torch.argmax(outputs.logits, dim=1)))
-        print(desc)
+    def eval_f1(y_pred: List[int], y_true: List[int]) -> float:
         print("Confusion matrix (i-th actual class and j-th predicted class)")
         print(confusion_matrix(y_true, y_pred))
         f1: float = f1_score(y_true, y_pred, average='macro')
@@ -194,7 +186,8 @@ if __name__ == "__main__":
 
     for epoch in range(N_EPOCH):
         model.train()
-        for input_ids, attention_mask, labels in tqdm(train_dataloader, desc=f"Epoch {epoch}"):
+        train_pred: List[int] = []
+        for input_ids, attention_mask, labels in tqdm(train_dataloader, desc=f"Train {epoch}"):
             outputs = model(input_ids=input_ids.to(device), attention_mask=attention_mask.to(device))
             loss = loss_fn(outputs.logits, labels.to(device))  # Use weighted loss
             loss.backward()
@@ -202,16 +195,26 @@ if __name__ == "__main__":
             optimizer.step()
             scheduler.step()
             optimizer.zero_grad()
+            train_pred.extend(tensor_to_list(torch.argmax(outputs.logits, dim=1)))
+        print("Eval train", epoch)
+        eval_f1(train_pred, y_train)
+        del train_pred
 
         model.eval()
-        eval_f1(train_dataloader, y_train, desc=f"Eval train {epoch}")
-        f1: float = eval_f1(test_dataloader, y_test, desc=f"Eval test {epoch}")
+        test_pred: List[int] = []
+        with torch.no_grad():
+            for input_ids, attention_mask, _ in tqdm(test_dataloader, desc=f"Test {epoch}"):
+                outputs = model(input_ids=input_ids.to(device), attention_mask=attention_mask.to(device))
+                test_pred.extend(tensor_to_list(torch.argmax(outputs.logits, dim=1)))
+        print("Eval test", epoch)
+        f1: float = eval_f1(test_pred, y_test)
         if f1 > best_f1:
             del_if_exists(get_model_file_name(best_f1))
             best_f1 = f1
             file_name: str = get_model_file_name(f1)
             torch.save(model.state_dict(), file_name)
             print("Saved state dict of the new best model to", file_name)
+        print()
 
     # Free CUDA memory
     del optimizer
