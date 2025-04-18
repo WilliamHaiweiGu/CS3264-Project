@@ -29,8 +29,8 @@ ax.grid(True, linestyle='--', alpha=0.5)
 plt.tight_layout()
 # plt.show()
 
-macro_f1 = [0.67, 0.61, 0.76, 0.78, 0.78]
-weighted_f1 = [0.84, 0.85, 0.76, 0.92, 0.92]
+macro_f1 = [0.67, 0.61, 0.76, 0.77, 0.77]
+weighted_f1 = [0.84, 0.85, 0.76, 0.91, 0.91]
 
 x = np.arange(len(models))
 width = 0.35
