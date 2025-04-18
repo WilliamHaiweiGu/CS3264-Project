@@ -22,10 +22,10 @@ nltk.download('vader_lexicon')
 memory = Memory(location='cache_dir', verbose=0)
 
 def clean_text(text: str) -> str:
-    text = re.sub(r"@[A-Za-z0-9_]+", ' ', text)
+    text = re.sub(r"@[A-Za-z0-9]+", ' ', text)
     text = re.sub(r"https?://[A-Za-z0-9./]+", ' ', text)
-    text = re.sub(r"[^A-Za-z.!?'0-9]", ' ', text)
-    text = re.sub(r'\t', ' ', text)
+    text = re.sub(r"[^a-zA-z.!?'0-9]", ' ', text)
+    text = re.sub('\t', ' ', text)
     return re.sub(r" +", ' ', text)
 
 def extract_mwes_from_corpus(corpus, top_n=50, freq_filter=3):
