@@ -12,13 +12,19 @@ df = pd.read_csv('train.csv')  # Ensure train.csv is in the same directory as th
 # Select Relevant Columns
 df = df[['tweet', 'class']].dropna()  # Keep only 'tweet' and 'class', and remove missing values
 
-# Text Cleaning Function
-def clean_text(text):
-    text = text.lower()  # Convert to lowercase
-    text = re.sub(r'http\S+', '', text)  # Remove URLs
-    text = re.sub(r'@\w+', '', text)  # Remove @mentions
-    text = re.sub(r'[^a-zA-Z\s]', '', text)  # Remove non-alphabetic characters
-    return text.strip()
+# # Text Cleaning Function
+# def clean_text(text):
+#     text = text.lower()  # Convert to lowercase
+#     text = re.sub(r'http\S+', '', text)  # Remove URLs
+#     text = re.sub(r'@\w+', '', text)  # Remove @mentions
+#     text = re.sub(r'[^a-zA-Z\s]', '', text)  # Remove non-alphabetic characters
+#     return text.strip()
+def clean_text(text: str) -> str:
+    text = re.sub(r"@[A-Za-z0-9]+", ' ', text)
+    text = re.sub(r"https?://[A-Za-z0-9./]+", ' ', text)
+    text = re.sub(r"[^a-zA-z.!?'0-9]", ' ', text)
+    text = re.sub('\t', ' ', text)
+    return re.sub(r" +", ' ', text)
 
 df['clean_tweet'] = df['tweet'].apply(clean_text)  # Apply text preprocessing
 print("Sample cleaned tweet:", df['clean_tweet'].iloc[0])  # Print a sample cleaned tweet for verification
