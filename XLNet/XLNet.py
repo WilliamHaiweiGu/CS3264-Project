@@ -32,7 +32,7 @@ RAND_STATE: int = 69
 
 tensor_to_list: Callable[[torch.Tensor], List[int | float] | int | float] = lambda ts: ts.detach().cpu().tolist()
 
-CACHE_PATH: str = "../.cache"
+CACHE_PATH: str = ".cache"
 
 
 def get_result_with_cache(file_name: str, read_file_fn: Callable[[str], Any], comp_fn: Callable[[], Any],
@@ -107,7 +107,7 @@ def comp_datasets(sample_proportion: int | float) -> Callable[[], Tuple[TensorDa
             except TypeError | ValueError:
                 continue
             raw_labels.append(truth_label)
-            raw_texts.append(row.tweet)
+            raw_texts.append(clean_text(row.tweet))
         del df
         X_train, X_test, y_train, y_test = train_test_split(raw_texts, raw_labels, test_size=TEST_SIZE,
                                                             random_state=RAND_STATE)
