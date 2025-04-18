@@ -64,4 +64,3 @@ y_pred = grid_search.predict(X_test)
 
 # Evaluate Model Performance
 print(classification_report(y_test, y_pred))
-print("Weighted F1 Score: {:.4f}".format(f1_score(y_test, y_pred, average='weighted')))
