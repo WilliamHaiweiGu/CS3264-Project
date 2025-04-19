@@ -24,13 +24,13 @@ ax.set_xticks(x)
 ax.set_xticklabels(models, rotation=15)
 ax.set_ylim([0, 1])
 ax.legend()
-ax.grid(True, linestyle='--', alpha=0.5)
+ax.yaxis.grid(True, linestyle=':', alpha=0.3)
 
 plt.tight_layout()
 # plt.show()
 
 macro_f1 = [0.67, 0.61, 0.76, 0.77, 0.77]
-weighted_f1 = [0.84, 0.85, 0.76, 0.91, 0.91]
+weighted_f1 = [0.84, 0.85, 0.91, 0.91, 0.91]
 
 x = np.arange(len(models))
 width = 0.35
@@ -45,7 +45,7 @@ ax.set_xticks(x)
 ax.set_xticklabels(models, rotation=15)
 ax.set_ylim([0, 1])
 ax.legend()
-ax.grid(True, linestyle='--', alpha=0.5)
+ax.yaxis.grid(True, linestyle=':', alpha=0.3)
 
 plt.tight_layout()
 plt.show()
