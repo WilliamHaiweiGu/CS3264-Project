@@ -1,0 +1,6 @@
+accelerate
+pandas
+datasets
+transformers
+scikit-learn
+numpy
